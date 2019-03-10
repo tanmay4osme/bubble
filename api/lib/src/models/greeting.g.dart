@@ -28,14 +28,21 @@ class GreetingMigration extends Migration {
 // **************************************************************************
 
 class GreetingQuery extends Query<Greeting, GreetingQueryWhere> {
-  GreetingQuery() {
-    _where = new GreetingQueryWhere(this);
+  GreetingQuery({Set<String> trampoline}) {
+    trampoline ??= Set();
+    trampoline.add(tableName);
+    _where = GreetingQueryWhere(this);
   }
 
   @override
-  final GreetingQueryValues values = new GreetingQueryValues();
+  final GreetingQueryValues values = GreetingQueryValues();
 
   GreetingQueryWhere _where;
+
+  @override
+  get casts {
+    return {};
+  }
 
   @override
   get tableName {
@@ -54,12 +61,12 @@ class GreetingQuery extends Query<Greeting, GreetingQueryWhere> {
 
   @override
   GreetingQueryWhere newWhereClause() {
-    return new GreetingQueryWhere(this);
+    return GreetingQueryWhere(this);
   }
 
   static Greeting parseRow(List row) {
     if (row.every((x) => x == null)) return null;
-    var model = new Greeting(
+    var model = Greeting(
         id: row[0].toString(),
         message: (row[1] as String),
         createdAt: (row[2] as DateTime),
@@ -75,10 +82,10 @@ class GreetingQuery extends Query<Greeting, GreetingQueryWhere> {
 
 class GreetingQueryWhere extends QueryWhere {
   GreetingQueryWhere(GreetingQuery query)
-      : id = new NumericSqlExpressionBuilder<int>(query, 'id'),
-        message = new StringSqlExpressionBuilder(query, 'message'),
-        createdAt = new DateTimeSqlExpressionBuilder(query, 'created_at'),
-        updatedAt = new DateTimeSqlExpressionBuilder(query, 'updated_at');
+      : id = NumericSqlExpressionBuilder<int>(query, 'id'),
+        message = StringSqlExpressionBuilder(query, 'message'),
+        createdAt = DateTimeSqlExpressionBuilder(query, 'created_at'),
+        updatedAt = DateTimeSqlExpressionBuilder(query, 'updated_at');
 
   final NumericSqlExpressionBuilder<int> id;
 
@@ -95,6 +102,11 @@ class GreetingQueryWhere extends QueryWhere {
 }
 
 class GreetingQueryValues extends MapQueryValues {
+  @override
+  get casts {
+    return {};
+  }
+
   int get id {
     return (values['id'] as int);
   }
@@ -116,11 +128,9 @@ class GreetingQueryValues extends MapQueryValues {
 
   set updatedAt(DateTime value) => values['updated_at'] = value;
   void copyFrom(Greeting model) {
-    values.addAll({
-      'message': model.message,
-      'created_at': model.createdAt,
-      'updated_at': model.updatedAt
-    });
+    message = model.message;
+    createdAt = model.createdAt;
+    updatedAt = model.updatedAt;
   }
 }
 
@@ -216,7 +226,7 @@ abstract class GreetingSerializer {
 }
 
 abstract class GreetingFields {
-  static const List<String> allFields = const <String>[
+  static const List<String> allFields = <String>[
     id,
     message,
     createdAt,
