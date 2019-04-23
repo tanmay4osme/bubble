@@ -3,9 +3,9 @@ library api.src.routes;
 import 'package:angel_framework/angel_framework.dart';
 import 'package:angel_orm/angel_orm.dart';
 import 'package:angel_static/angel_static.dart';
+import 'package:api/models.dart';
 import 'package:file/file.dart';
 import 'controllers/controllers.dart' as controllers;
-import '../models/greeting.dart';
 
 /// Put your app routes here!
 ///
