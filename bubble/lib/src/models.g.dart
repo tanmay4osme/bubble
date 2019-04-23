@@ -53,7 +53,7 @@ class PostMigration extends Migration {
       table.integer('type');
       table.timeStamp('created_at');
       table.timeStamp('updated_at');
-      table.integer('user_id').references('users', 'id');
+      table.integer('posted_by').references('users', 'id');
     });
   }
 
@@ -68,7 +68,7 @@ class PostShareMigration extends Migration {
   up(Schema schema) {
     schema.create('post_shares', (table) {
       table.integer('bubble_id');
-      table.integer('user_id').references('users', 'id');
+      table.integer('shared_by').references('users', 'id');
       table.integer('post_id').references('posts', 'id');
     });
   }
@@ -126,7 +126,7 @@ class BubbleQuery extends Query<Bubble, BubbleQueryWhere> {
     trampoline.add(tableName);
     _where = BubbleQueryWhere(this);
     leftJoin(PostShareQuery(trampoline: trampoline), 'id', 'bubble_id',
-        additionalFields: const ['bubble_id', 'user_id', 'post_id'],
+        additionalFields: const ['bubble_id', 'shared_by', 'post_id'],
         trampoline: trampoline);
     leftJoin(
         BubbleAggregationRuleQuery(trampoline: trampoline), 'id', 'bubble_id',
@@ -501,7 +501,7 @@ class PostQuery extends Query<Post, PostQueryWhere> {
     trampoline ??= Set();
     trampoline.add(tableName);
     _where = PostQueryWhere(this);
-    leftJoin('users', 'user_id', 'id',
+    leftJoin('users', 'posted_by', 'id',
         additionalFields: const [
           'id',
           'username',
@@ -532,7 +532,7 @@ class PostQuery extends Query<Post, PostQueryWhere> {
 
   @override
   get fields {
-    return const ['id', 'type', 'user_id', 'created_at', 'updated_at'];
+    return const ['id', 'type', 'posted_by', 'created_at', 'updated_at'];
   }
 
   @override
@@ -570,7 +570,7 @@ class PostQueryWhere extends QueryWhere {
       : id = NumericSqlExpressionBuilder<int>(query, 'id'),
         type =
             EnumSqlExpressionBuilder<PostType>(query, 'type', (v) => v.index),
-        userId = NumericSqlExpressionBuilder<int>(query, 'user_id'),
+        postedBy = NumericSqlExpressionBuilder<int>(query, 'posted_by'),
         createdAt = DateTimeSqlExpressionBuilder(query, 'created_at'),
         updatedAt = DateTimeSqlExpressionBuilder(query, 'updated_at');
 
@@ -578,7 +578,7 @@ class PostQueryWhere extends QueryWhere {
 
   final EnumSqlExpressionBuilder<PostType> type;
 
-  final NumericSqlExpressionBuilder<int> userId;
+  final NumericSqlExpressionBuilder<int> postedBy;
 
   final DateTimeSqlExpressionBuilder createdAt;
 
@@ -586,7 +586,7 @@ class PostQueryWhere extends QueryWhere {
 
   @override
   get expressionBuilders {
-    return [id, type, userId, createdAt, updatedAt];
+    return [id, type, postedBy, createdAt, updatedAt];
   }
 }
 
@@ -606,11 +606,11 @@ class PostQueryValues extends MapQueryValues {
   }
 
   set type(PostType value) => values['type'] = value?.index;
-  int get userId {
-    return (values['user_id'] as int);
+  int get postedBy {
+    return (values['posted_by'] as int);
   }
 
-  set userId(int value) => values['user_id'] = value;
+  set postedBy(int value) => values['posted_by'] = value;
   DateTime get createdAt {
     return (values['created_at'] as DateTime);
   }
@@ -626,7 +626,7 @@ class PostQueryValues extends MapQueryValues {
     createdAt = model.createdAt;
     updatedAt = model.updatedAt;
     if (model.user != null) {
-      values['user_id'] = model.user.id;
+      values['posted_by'] = model.user.id;
     }
   }
 }
@@ -636,7 +636,7 @@ class PostShareQuery extends Query<PostShare, PostShareQueryWhere> {
     trampoline ??= Set();
     trampoline.add(tableName);
     _where = PostShareQueryWhere(this);
-    leftJoin('users', 'user_id', 'id',
+    leftJoin('users', 'shared_by', 'id',
         additionalFields: const [
           'id',
           'username',
@@ -652,7 +652,7 @@ class PostShareQuery extends Query<PostShare, PostShareQueryWhere> {
         additionalFields: const [
           'id',
           'type',
-          'user_id',
+          'posted_by',
           'created_at',
           'updated_at'
         ],
@@ -676,7 +676,7 @@ class PostShareQuery extends Query<PostShare, PostShareQueryWhere> {
 
   @override
   get fields {
-    return const ['bubble_id', 'user_id', 'post_id'];
+    return const ['bubble_id', 'shared_by', 'post_id'];
   }
 
   @override
@@ -712,18 +712,18 @@ class PostShareQuery extends Query<PostShare, PostShareQueryWhere> {
 class PostShareQueryWhere extends QueryWhere {
   PostShareQueryWhere(PostShareQuery query)
       : bubbleId = NumericSqlExpressionBuilder<int>(query, 'bubble_id'),
-        userId = NumericSqlExpressionBuilder<int>(query, 'user_id'),
+        sharedBy = NumericSqlExpressionBuilder<int>(query, 'shared_by'),
         postId = NumericSqlExpressionBuilder<int>(query, 'post_id');
 
   final NumericSqlExpressionBuilder<int> bubbleId;
 
-  final NumericSqlExpressionBuilder<int> userId;
+  final NumericSqlExpressionBuilder<int> sharedBy;
 
   final NumericSqlExpressionBuilder<int> postId;
 
   @override
   get expressionBuilders {
-    return [bubbleId, userId, postId];
+    return [bubbleId, sharedBy, postId];
   }
 }
 
@@ -738,11 +738,11 @@ class PostShareQueryValues extends MapQueryValues {
   }
 
   set bubbleId(int value) => values['bubble_id'] = value;
-  int get userId {
-    return (values['user_id'] as int);
+  int get sharedBy {
+    return (values['shared_by'] as int);
   }
 
-  set userId(int value) => values['user_id'] = value;
+  set sharedBy(int value) => values['shared_by'] = value;
   int get postId {
     return (values['post_id'] as int);
   }
@@ -751,7 +751,7 @@ class PostShareQueryValues extends MapQueryValues {
   void copyFrom(PostShare model) {
     bubbleId = model.bubbleId;
     if (model.user != null) {
-      values['user_id'] = model.user.id;
+      values['shared_by'] = model.user.id;
     }
     if (model.post != null) {
       values['post_id'] = model.post.id;

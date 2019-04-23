@@ -52,7 +52,7 @@ abstract class _Post extends Model {
   @notNull
   PostType get type;
 
-  @belongsTo
+  @BelongsTo(localKey: 'posted_by')
   _User get user;
 }
 
@@ -62,7 +62,7 @@ abstract class _PostShare {
   @notNull
   int get bubbleId;
 
-  @belongsTo
+  @BelongsTo(localKey: 'shared_by')
   _User get user;
 
   @belongsTo
