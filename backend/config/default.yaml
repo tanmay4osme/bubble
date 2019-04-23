@@ -1,0 +1,6 @@
+# Default server configuration.
+postgres:
+  database_name: bubble
+  username: postgres
+  password: postgres
+jwt_secret: "ce8ZZ4W3qGqUDeZjNuEAFGnY3AS7taac"
