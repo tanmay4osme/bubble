@@ -7,12 +7,14 @@ import 'package:file/file.dart';
 import 'plugins/plugins.dart' as plugins;
 
 /// This is a perfect place to include configuration and load plug-ins.
-AngelConfigurer configureServer(FileSystem fileSystem) {
+AngelConfigurer configureServer(FileSystem fileSystem,
+    [AngelEnvironment env = angelEnv]) {
   return (Angel app) async {
     // Load configuration from the `config/` directory.
     //
     // See: https://github.com/angel-dart/configuration
-    await app.configure(configuration(fileSystem));
+    await app.configure(
+        configuration(fileSystem, overrideEnvironmentName: env.value));
 
     // Configure our application to render Jael templates from the `views/` directory.
     //

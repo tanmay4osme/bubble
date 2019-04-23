@@ -1,0 +1,2 @@
+postgres:
+  database_name: bubble_test
