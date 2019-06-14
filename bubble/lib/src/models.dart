@@ -3,6 +3,8 @@ import 'package:angel_serialize/angel_serialize.dart';
 import 'package:angel_orm/angel_orm.dart';
 part 'models.g.dart';
 
+const serializable = Serializable(serializers: Serializers.all);
+
 enum BubbleType {
   aggregate,
   profile,
