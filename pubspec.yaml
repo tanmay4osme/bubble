@@ -1,0 +1,34 @@
+name: bubble
+description: Open source social network.
+publish_to: none
+environment:
+  sdk: '>=2.0.0-dev <3.0.0'
+homepage: https://github.com/thosakwe/bubble
+dependencies:
+  angel_auth: ^2.0.0
+  angel_configuration: ^2.0.0
+  angel_framework: ^2.0.0
+  angel_jael: ^2.0.0
+  angel_migration: ^2.0.0-alpha
+  angel_orm: ^2.1.0-beta
+  angel_orm_postgres: ^1.1.0-beta
+  angel_serialize: ^2.0.0
+  angel_production: ^1.0.0
+  angel_static: ^2.0.0
+  angel_validate: ^2.0.0
+  angular: ^5.0.0
+  angular_forms: ^2.0.0
+  angular_router: ^2.0.0-alpha
+  dbcrypt: ^1.0.0
+  pretty_logging: ^1.0.0
+dev_dependencies:
+  angel_hot: ^2.0.0
+  angel_migration_runner: ^2.0.0
+  angel_orm_generator: ^2.1.0-beta
+  angel_serialize_generator: ^2.0.0
+  angel_test: ^2.0.0
+  build_runner: ^1.0.0
+  build_web_compilers: ^2.0.0
+  io: ^0.3.2
+  pedantic: ^1.0.0
+  test: ^1.0.0
