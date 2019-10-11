@@ -19,7 +19,7 @@ class BubbleController extends Controller {
   }
 
   @Expose('/int:bubbleId/share', method: 'POST', middleware: [_parsePost])
-  Future<PostShare> sharePost(int bubbleId, User user, Post post) async {
+  Future<PostShare> sharePost(int bubbleId, User user, Post postData) async {
     // Find the user's subscription, if any.
     var subscriptionQuery = SubscriptionQuery();
     subscriptionQuery.where
@@ -47,6 +47,16 @@ class BubbleController extends Controller {
     aggregateIds.addAll(await aggregateQuery
         .get(executor)
         .then((it) => it.map((r) => r.bubbleId)));
+
+    // Next, insert the post into the database.
+    var now = DateTime.now();
+    var postQuery = PostQuery();
+    postQuery.values
+      ..postedBy = user.idAsInt
+      ..type = postData.type
+      ..createdAt = now
+      ..updatedAt = now;
+    var post = await postQuery.insert(executor);
 
     // Finally, create post shares for each of the aggregates.
     var shares = await Future.wait(aggregateIds.map((id) async {

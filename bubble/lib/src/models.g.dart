@@ -1075,8 +1075,8 @@ class Bubble extends _Bubble {
       List<_BubbleAggregationRule> aggregationRules,
       this.createdAt,
       this.updatedAt})
-      : this.shares = new List.unmodifiable(shares ?? []),
-        this.aggregationRules = new List.unmodifiable(aggregationRules ?? []);
+      : this.shares = List.unmodifiable(shares ?? []),
+        this.aggregationRules = List.unmodifiable(aggregationRules ?? []);
 
   @override
   final String id;
@@ -1115,7 +1115,7 @@ class Bubble extends _Bubble {
       List<_BubbleAggregationRule> aggregationRules,
       DateTime createdAt,
       DateTime updatedAt}) {
-    return new Bubble(
+    return Bubble(
         id: id ?? this.id,
         type: type ?? this.type,
         ownerId: ownerId ?? this.ownerId,
@@ -1203,7 +1203,7 @@ class BubbleAggregationRule extends _BubbleAggregationRule {
       int targetUserId,
       DateTime createdAt,
       DateTime updatedAt}) {
-    return new BubbleAggregationRule(
+    return BubbleAggregationRule(
         id: id ?? this.id,
         bubbleId: bubbleId ?? this.bubbleId,
         targetBubbleId: targetBubbleId ?? this.targetBubbleId,
@@ -1268,7 +1268,7 @@ class Post extends _Post {
       _User user,
       DateTime createdAt,
       DateTime updatedAt}) {
-    return new Post(
+    return Post(
         id: id ?? this.id,
         type: type ?? this.type,
         user: user ?? this.user,
@@ -1314,7 +1314,7 @@ class PostShare implements _PostShare {
   final _Post post;
 
   PostShare copyWith({int bubbleId, _User user, _Post post}) {
-    return new PostShare(
+    return PostShare(
         bubbleId: bubbleId ?? this.bubbleId,
         user: user ?? this.user,
         post: post ?? this.post);
@@ -1357,7 +1357,7 @@ class Subscription implements _Subscription {
 
   Subscription copyWith(
       {_Bubble bubble, _User user, BubblePermission permission}) {
-    return new Subscription(
+    return Subscription(
         bubble: bubble ?? this.bubble,
         user: user ?? this.user,
         permission: permission ?? this.permission);
@@ -1430,7 +1430,7 @@ class User extends _User {
       bool isAvatarVerified,
       DateTime createdAt,
       DateTime updatedAt}) {
-    return new User(
+    return User(
         id: id ?? this.id,
         username: username ?? this.username,
         salt: salt ?? this.salt,
@@ -1506,19 +1506,19 @@ class BubbleSerializer extends Codec<Bubble, Map> {
   get decoder => const BubbleDecoder();
   static Bubble fromMap(Map map) {
     if (map['type'] == null) {
-      throw new FormatException("Missing required field 'type' on Bubble.");
+      throw FormatException("Missing required field 'type' on Bubble.");
     }
 
     if (map['name'] == null) {
-      throw new FormatException("Missing required field 'name' on Bubble.");
+      throw FormatException("Missing required field 'name' on Bubble.");
     }
 
     if (map['description'] == null) {
-      throw new FormatException(
+      throw FormatException(
           "Missing required field 'description' on Bubble.");
     }
 
-    return new Bubble(
+    return Bubble(
         id: map['id'] as String,
         type: map['type'] is BubbleType
             ? (map['type'] as BubbleType)
@@ -1529,13 +1529,13 @@ class BubbleSerializer extends Codec<Bubble, Map> {
         name: map['name'] as String,
         description: map['description'] as String,
         shares: map['shares'] is Iterable
-            ? new List.unmodifiable(
+            ? List.unmodifiable(
                 ((map['shares'] as Iterable).where((x) => x is Map))
                     .cast<Map>()
                     .map(PostShareSerializer.fromMap))
             : null,
         aggregationRules: map['aggregation_rules'] is Iterable
-            ? new List.unmodifiable(
+            ? List.unmodifiable(
                 ((map['aggregation_rules'] as Iterable).where((x) => x is Map))
                     .cast<Map>()
                     .map(BubbleAggregationRuleSerializer.fromMap))
@@ -1557,15 +1557,15 @@ class BubbleSerializer extends Codec<Bubble, Map> {
       return null;
     }
     if (model.type == null) {
-      throw new FormatException("Missing required field 'type' on Bubble.");
+      throw FormatException("Missing required field 'type' on Bubble.");
     }
 
     if (model.name == null) {
-      throw new FormatException("Missing required field 'name' on Bubble.");
+      throw FormatException("Missing required field 'name' on Bubble.");
     }
 
     if (model.description == null) {
-      throw new FormatException(
+      throw FormatException(
           "Missing required field 'description' on Bubble.");
     }
 
@@ -1648,7 +1648,7 @@ class BubbleAggregationRuleSerializer
   @override
   get decoder => const BubbleAggregationRuleDecoder();
   static BubbleAggregationRule fromMap(Map map) {
-    return new BubbleAggregationRule(
+    return BubbleAggregationRule(
         id: map['id'] as String,
         bubbleId: map['bubble_id'] as int,
         targetBubbleId: map['target_bubble_id'] as int,
@@ -1728,10 +1728,10 @@ class PostSerializer extends Codec<Post, Map> {
   get decoder => const PostDecoder();
   static Post fromMap(Map map) {
     if (map['type'] == null) {
-      throw new FormatException("Missing required field 'type' on Post.");
+      throw FormatException("Missing required field 'type' on Post.");
     }
 
-    return new Post(
+    return Post(
         id: map['id'] as String,
         type: map['type'] is PostType
             ? (map['type'] as PostType)
@@ -1756,7 +1756,7 @@ class PostSerializer extends Codec<Post, Map> {
       return null;
     }
     if (model.type == null) {
-      throw new FormatException("Missing required field 'type' on Post.");
+      throw FormatException("Missing required field 'type' on Post.");
     }
 
     return {
@@ -1814,11 +1814,11 @@ class PostShareSerializer extends Codec<PostShare, Map> {
   get decoder => const PostShareDecoder();
   static PostShare fromMap(Map map) {
     if (map['bubble_id'] == null) {
-      throw new FormatException(
+      throw FormatException(
           "Missing required field 'bubble_id' on PostShare.");
     }
 
-    return new PostShare(
+    return PostShare(
         bubbleId: map['bubble_id'] as int,
         user: map['user'] != null
             ? UserSerializer.fromMap(map['user'] as Map)
@@ -1833,7 +1833,7 @@ class PostShareSerializer extends Codec<PostShare, Map> {
       return null;
     }
     if (model.bubbleId == null) {
-      throw new FormatException(
+      throw FormatException(
           "Missing required field 'bubble_id' on PostShare.");
     }
 
@@ -1881,11 +1881,11 @@ class SubscriptionSerializer extends Codec<Subscription, Map> {
   get decoder => const SubscriptionDecoder();
   static Subscription fromMap(Map map) {
     if (map['permission'] == null) {
-      throw new FormatException(
+      throw FormatException(
           "Missing required field 'permission' on Subscription.");
     }
 
-    return new Subscription(
+    return Subscription(
         bubble: map['bubble'] != null
             ? BubbleSerializer.fromMap(map['bubble'] as Map)
             : null,
@@ -1904,7 +1904,7 @@ class SubscriptionSerializer extends Codec<Subscription, Map> {
       return null;
     }
     if (model.permission == null) {
-      throw new FormatException(
+      throw FormatException(
           "Missing required field 'permission' on Subscription.");
     }
 
@@ -1953,19 +1953,19 @@ class UserSerializer extends Codec<User, Map> {
   get decoder => const UserDecoder();
   static User fromMap(Map map) {
     if (map['username'] == null) {
-      throw new FormatException("Missing required field 'username' on User.");
+      throw FormatException("Missing required field 'username' on User.");
     }
 
     if (map['salt'] == null) {
-      throw new FormatException("Missing required field 'salt' on User.");
+      throw FormatException("Missing required field 'salt' on User.");
     }
 
     if (map['hashed_password'] == null) {
-      throw new FormatException(
+      throw FormatException(
           "Missing required field 'hashed_password' on User.");
     }
 
-    return new User(
+    return User(
         id: map['id'] as String,
         username: map['username'] as String,
         salt: map['salt'] as String,
@@ -1989,15 +1989,15 @@ class UserSerializer extends Codec<User, Map> {
       return null;
     }
     if (model.username == null) {
-      throw new FormatException("Missing required field 'username' on User.");
+      throw FormatException("Missing required field 'username' on User.");
     }
 
     if (model.salt == null) {
-      throw new FormatException("Missing required field 'salt' on User.");
+      throw FormatException("Missing required field 'salt' on User.");
     }
 
     if (model.hashedPassword == null) {
-      throw new FormatException(
+      throw FormatException(
           "Missing required field 'hashed_password' on User.");
     }
 

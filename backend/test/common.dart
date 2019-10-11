@@ -3,10 +3,10 @@ import 'package:angel_container/mirrors.dart';
 import 'package:angel_framework/angel_framework.dart';
 import 'package:angel_migration_runner/angel_migration_runner.dart';
 import 'package:angel_test/angel_test.dart';
-import 'package:backend/src/pretty_logging.dart';
 import 'package:backend/backend.dart' as backend;
 import 'package:backend/migration.dart';
 import 'package:logging/logging.dart';
+import 'package:pretty_logging/pretty_logging.dart';
 
 const testingEnv = AngelEnvironment('testing');
 
