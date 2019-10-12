@@ -13,6 +13,7 @@ import 'route_defs.dart';
     providers: [BubbleApiService])
 class BubbleAppComponent implements OnInit {
   final BubbleApiService api;
+  bool isInitialized = false;
 
   BubbleAppComponent(this.api);
 
@@ -23,6 +24,8 @@ class BubbleAppComponent implements OnInit {
     } catch (e) {
       // Do nothing...
       window.console.info(e);
+    } finally {
+      isInitialized = true;
     }
   }
 }
