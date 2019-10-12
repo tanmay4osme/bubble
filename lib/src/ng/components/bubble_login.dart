@@ -13,6 +13,9 @@ class BubbleLoginComponent implements OnActivate {
 
   BubbleLoginComponent(this.titleService);
 
+  String get passwordAutoComplete =>
+      isLogin ? 'current-password' : 'new-password';
+
   void toggle() => isLogin = !isLogin;
 
   @override

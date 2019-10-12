@@ -6,16 +6,16 @@
     </div>
     <form>
       <div class="field">
-        <input *ngIf="!isLogin" placeholder="Email Address" type="email">
+        <input *ngIf="!isLogin" autocomplete="email" placeholder="Email Address" type="email">
       </div>
       <div class="field">
-        <input placeholder="Username" type="text">
+        <input autocomplete="username" placeholder="Username" type="text">
       </div>
       <div class="field">
-        <input placeholder="Password" type="password">
+        <input [autocomplete]="passwordAutoComplete" placeholder="Password" type="password">
       </div>
       <div class="field">
-        <input *ngIf="!isLogin" placeholder="Confirm Password" type="password">
+        <input *ngIf="!isLogin" autocomplete="new-password" placeholder="Confirm Password" type="password">
       </div>
       <div class="field">
         <button class="fluid primary">Submit</button>
