@@ -95,14 +95,10 @@ class _Subscription {
 @serializable
 @orm
 class _User extends Model {
-  @notNull
   String username;
 
-  @notNull
-  String salt;
-
-  @notNull
-  String hashedPassword;
+  @Exclude(canDeserialize: true)
+  String salt, hashedPassword;
 
   @DefaultsTo(false)
   bool isEmailConfirmed;
@@ -118,11 +114,7 @@ class _User extends Model {
 // Config
 
 @serializable
-class _BubbleConfig {
-
-}
+class _BubbleConfig {}
 
 @serializable
-class _BubbleThemeConfig {
-  
-}
+class _BubbleThemeConfig {}

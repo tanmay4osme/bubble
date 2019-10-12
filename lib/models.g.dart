@@ -1460,9 +1460,9 @@ class User extends _User {
       {this.id,
       this.createdAt,
       this.updatedAt,
-      @required this.username,
-      @required this.salt,
-      @required this.hashedPassword,
+      this.username,
+      this.salt,
+      this.hashedPassword,
       this.isEmailConfirmed = false,
       this.isAvatarVerified = false});
 
@@ -2070,19 +2070,6 @@ class UserSerializer extends Codec<User, Map> {
   @override
   get decoder => const UserDecoder();
   static User fromMap(Map map) {
-    if (map['username'] == null) {
-      throw FormatException("Missing required field 'username' on User.");
-    }
-
-    if (map['salt'] == null) {
-      throw FormatException("Missing required field 'salt' on User.");
-    }
-
-    if (map['hashed_password'] == null) {
-      throw FormatException(
-          "Missing required field 'hashed_password' on User.");
-    }
-
     return User(
         id: map['id'] as String,
         createdAt: map['created_at'] != null
@@ -2106,26 +2093,11 @@ class UserSerializer extends Codec<User, Map> {
     if (model == null) {
       return null;
     }
-    if (model.username == null) {
-      throw FormatException("Missing required field 'username' on User.");
-    }
-
-    if (model.salt == null) {
-      throw FormatException("Missing required field 'salt' on User.");
-    }
-
-    if (model.hashedPassword == null) {
-      throw FormatException(
-          "Missing required field 'hashed_password' on User.");
-    }
-
     return {
       'id': model.id,
       'created_at': model.createdAt?.toIso8601String(),
       'updated_at': model.updatedAt?.toIso8601String(),
       'username': model.username,
-      'salt': model.salt,
-      'hashed_password': model.hashedPassword,
       'is_email_confirmed': model.isEmailConfirmed,
       'is_avatar_verified': model.isAvatarVerified
     };
