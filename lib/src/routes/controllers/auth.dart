@@ -89,9 +89,28 @@ class AuthController extends Controller {
       ..isEmailConfirmed = false
       ..createdAt = now
       ..updatedAt = now;
+    var user = await query.insert(executor);
+
+    // Create the user's profile bubble.
+    var profileQuery = BubbleQuery();
+    profileQuery.values
+      ..name = user.name
+      ..userId = user.idAsInt
+      ..type = BubbleType.profile
+      ..description = '${user.name}\'s profile'
+      ..createdAt = now
+      ..updatedAt = now;
+    var bubble = user.profileBubble = await profileQuery.insert(executor);
+
+    // Subscribe the user to their own profile.
+    var subQuery = SubscriptionQuery();
+    subQuery.values
+      ..bubbleId = bubble.idAsInt
+      ..userId = user.idAsInt
+      ..permission = BubblePermission.owner;
+    await subQuery.insert(executor);
 
     // Return a JWT token pointing to the user.
-    var user = await query.insert(executor);
     var token = AuthToken(ipAddress: req.ip, userId: user.id, issuedAt: now);
     return {
       'data': user,

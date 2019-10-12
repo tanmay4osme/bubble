@@ -14,7 +14,7 @@ class BubbleMigration extends Migration {
       table.timeStamp('created_at');
       table.timeStamp('updated_at');
       table.integer('type');
-      table.integer('owner_id');
+      table.integer('user_id');
       table.varChar('name');
       table.varChar('description');
     });
@@ -198,7 +198,7 @@ class BubbleQuery extends Query<Bubble, BubbleQueryWhere> {
       'created_at',
       'updated_at',
       'type',
-      'owner_id',
+      'user_id',
       'name',
       'description'
     ];
@@ -221,7 +221,7 @@ class BubbleQuery extends Query<Bubble, BubbleQueryWhere> {
         createdAt: (row[1] as DateTime),
         updatedAt: (row[2] as DateTime),
         type: row[3] == null ? null : BubbleType.values[(row[3] as int)],
-        ownerId: (row[4] as int),
+        userId: (row[4] as int),
         name: (row[5] as String),
         description: (row[6] as String));
     if (row.length > 7) {
@@ -326,7 +326,7 @@ class BubbleQueryWhere extends QueryWhere {
         updatedAt = DateTimeSqlExpressionBuilder(query, 'updated_at'),
         type =
             EnumSqlExpressionBuilder<BubbleType>(query, 'type', (v) => v.index),
-        ownerId = NumericSqlExpressionBuilder<int>(query, 'owner_id'),
+        userId = NumericSqlExpressionBuilder<int>(query, 'user_id'),
         name = StringSqlExpressionBuilder(query, 'name'),
         description = StringSqlExpressionBuilder(query, 'description');
 
@@ -338,7 +338,7 @@ class BubbleQueryWhere extends QueryWhere {
 
   final EnumSqlExpressionBuilder<BubbleType> type;
 
-  final NumericSqlExpressionBuilder<int> ownerId;
+  final NumericSqlExpressionBuilder<int> userId;
 
   final StringSqlExpressionBuilder name;
 
@@ -346,7 +346,7 @@ class BubbleQueryWhere extends QueryWhere {
 
   @override
   get expressionBuilders {
-    return [id, createdAt, updatedAt, type, ownerId, name, description];
+    return [id, createdAt, updatedAt, type, userId, name, description];
   }
 }
 
@@ -376,11 +376,11 @@ class BubbleQueryValues extends MapQueryValues {
   }
 
   set type(BubbleType value) => values['type'] = value?.index;
-  int get ownerId {
-    return (values['owner_id'] as int);
+  int get userId {
+    return (values['user_id'] as int);
   }
 
-  set ownerId(int value) => values['owner_id'] = value;
+  set userId(int value) => values['user_id'] = value;
   String get name {
     return (values['name'] as String);
   }
@@ -395,7 +395,7 @@ class BubbleQueryValues extends MapQueryValues {
     createdAt = model.createdAt;
     updatedAt = model.updatedAt;
     type = model.type;
-    ownerId = model.ownerId;
+    userId = model.userId;
     name = model.name;
     description = model.description;
   }
@@ -840,7 +840,7 @@ class SubscriptionQuery extends Query<Subscription, SubscriptionQueryWhere> {
           'created_at',
           'updated_at',
           'type',
-          'owner_id',
+          'user_id',
           'name',
           'description'
         ],
@@ -993,6 +993,18 @@ class UserQuery extends Query<User, UserQueryWhere> {
           'size_in_bytes'
         ],
         trampoline: trampoline);
+    leftJoin(_profileBubble = BubbleQuery(trampoline: trampoline, parent: this),
+        'id', 'user_id',
+        additionalFields: const [
+          'id',
+          'created_at',
+          'updated_at',
+          'type',
+          'user_id',
+          'name',
+          'description'
+        ],
+        trampoline: trampoline);
   }
 
   @override
@@ -1001,6 +1013,8 @@ class UserQuery extends Query<User, UserQueryWhere> {
   UserQueryWhere _where;
 
   UploadQuery _avatar;
+
+  BubbleQuery _profileBubble;
 
   @override
   get casts {
@@ -1053,6 +1067,10 @@ class UserQuery extends Query<User, UserQueryWhere> {
       model = model.copyWith(
           avatar: UploadQuery.parseRow(row.skip(9).take(7).toList()));
     }
+    if (row.length > 16) {
+      model = model.copyWith(
+          profileBubble: BubbleQuery.parseRow(row.skip(16).take(7).toList()));
+    }
     return model;
   }
 
@@ -1063,6 +1081,10 @@ class UserQuery extends Query<User, UserQueryWhere> {
 
   UploadQuery get avatar {
     return _avatar;
+  }
+
+  BubbleQuery get profileBubble {
+    return _profileBubble;
   }
 }
 
@@ -1333,7 +1355,7 @@ class Bubble extends _Bubble {
       this.createdAt,
       this.updatedAt,
       @required this.type,
-      this.ownerId,
+      this.userId,
       @required this.name,
       @required this.description,
       List<_PostShare> shares,
@@ -1357,7 +1379,7 @@ class Bubble extends _Bubble {
   BubbleType type;
 
   @override
-  int ownerId;
+  int userId;
 
   @override
   String name;
@@ -1376,7 +1398,7 @@ class Bubble extends _Bubble {
       DateTime createdAt,
       DateTime updatedAt,
       BubbleType type,
-      int ownerId,
+      int userId,
       String name,
       String description,
       List<_PostShare> shares,
@@ -1386,7 +1408,7 @@ class Bubble extends _Bubble {
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         type: type ?? this.type,
-        ownerId: ownerId ?? this.ownerId,
+        userId: userId ?? this.userId,
         name: name ?? this.name,
         description: description ?? this.description,
         shares: shares ?? this.shares,
@@ -1399,7 +1421,7 @@ class Bubble extends _Bubble {
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt &&
         other.type == type &&
-        other.ownerId == ownerId &&
+        other.userId == userId &&
         other.name == name &&
         other.description == description &&
         ListEquality<_PostShare>(DefaultEquality<_PostShare>())
@@ -1416,7 +1438,7 @@ class Bubble extends _Bubble {
       createdAt,
       updatedAt,
       type,
-      ownerId,
+      userId,
       name,
       description,
       shares,
@@ -1426,7 +1448,7 @@ class Bubble extends _Bubble {
 
   @override
   String toString() {
-    return "Bubble(id=$id, createdAt=$createdAt, updatedAt=$updatedAt, type=$type, ownerId=$ownerId, name=$name, description=$description, shares=$shares, aggregationRules=$aggregationRules)";
+    return "Bubble(id=$id, createdAt=$createdAt, updatedAt=$updatedAt, type=$type, userId=$userId, name=$name, description=$description, shares=$shares, aggregationRules=$aggregationRules)";
   }
 
   Map<String, dynamic> toJson() {
@@ -1669,7 +1691,8 @@ class User extends _User {
       this.hashedPassword,
       this.isEmailConfirmed = false,
       this.isAvatarVerified = false,
-      this.avatar});
+      this.avatar,
+      this.profileBubble});
 
   /// A unique identifier corresponding to this item.
   @override
@@ -1704,6 +1727,9 @@ class User extends _User {
   @override
   _Upload avatar;
 
+  @override
+  _Bubble profileBubble;
+
   User copyWith(
       {String id,
       DateTime createdAt,
@@ -1714,7 +1740,8 @@ class User extends _User {
       String hashedPassword,
       bool isEmailConfirmed,
       bool isAvatarVerified,
-      _Upload avatar}) {
+      _Upload avatar,
+      _Bubble profileBubble}) {
     return User(
         id: id ?? this.id,
         createdAt: createdAt ?? this.createdAt,
@@ -1725,7 +1752,8 @@ class User extends _User {
         hashedPassword: hashedPassword ?? this.hashedPassword,
         isEmailConfirmed: isEmailConfirmed ?? this.isEmailConfirmed,
         isAvatarVerified: isAvatarVerified ?? this.isAvatarVerified,
-        avatar: avatar ?? this.avatar);
+        avatar: avatar ?? this.avatar,
+        profileBubble: profileBubble ?? this.profileBubble);
   }
 
   bool operator ==(other) {
@@ -1739,7 +1767,8 @@ class User extends _User {
         other.hashedPassword == hashedPassword &&
         other.isEmailConfirmed == isEmailConfirmed &&
         other.isAvatarVerified == isAvatarVerified &&
-        other.avatar == avatar;
+        other.avatar == avatar &&
+        other.profileBubble == profileBubble;
   }
 
   @override
@@ -1754,13 +1783,14 @@ class User extends _User {
       hashedPassword,
       isEmailConfirmed,
       isAvatarVerified,
-      avatar
+      avatar,
+      profileBubble
     ]);
   }
 
   @override
   String toString() {
-    return "User(id=$id, createdAt=$createdAt, updatedAt=$updatedAt, name=$name, email=$email, salt=$salt, hashedPassword=$hashedPassword, isEmailConfirmed=$isEmailConfirmed, isAvatarVerified=$isAvatarVerified, avatar=$avatar)";
+    return "User(id=$id, createdAt=$createdAt, updatedAt=$updatedAt, name=$name, email=$email, salt=$salt, hashedPassword=$hashedPassword, isEmailConfirmed=$isEmailConfirmed, isAvatarVerified=$isAvatarVerified, avatar=$avatar, profileBubble=$profileBubble)";
   }
 
   Map<String, dynamic> toJson() {
@@ -2038,7 +2068,7 @@ class BubbleSerializer extends Codec<Bubble, Map> {
             : (map['type'] is int
                 ? BubbleType.values[map['type'] as int]
                 : null),
-        ownerId: map['owner_id'] as int,
+        userId: map['user_id'] as int,
         name: map['name'] as String,
         description: map['description'] as String,
         shares: map['shares'] is Iterable
@@ -2073,7 +2103,7 @@ class BubbleSerializer extends Codec<Bubble, Map> {
       'created_at': model.createdAt?.toIso8601String(),
       'updated_at': model.updatedAt?.toIso8601String(),
       'type': model.type == null ? null : BubbleType.values.indexOf(model.type),
-      'owner_id': model.ownerId,
+      'user_id': model.userId,
       'name': model.name,
       'description': model.description,
       'shares':
@@ -2091,7 +2121,7 @@ abstract class BubbleFields {
     createdAt,
     updatedAt,
     type,
-    ownerId,
+    userId,
     name,
     description,
     shares,
@@ -2106,7 +2136,7 @@ abstract class BubbleFields {
 
   static const String type = 'type';
 
-  static const String ownerId = 'owner_id';
+  static const String userId = 'user_id';
 
   static const String name = 'name';
 
@@ -2468,6 +2498,9 @@ class UserSerializer extends Codec<User, Map> {
         isAvatarVerified: map['is_avatar_verified'] as bool ?? false,
         avatar: map['avatar'] != null
             ? UploadSerializer.fromMap(map['avatar'] as Map)
+            : null,
+        profileBubble: map['profile_bubble'] != null
+            ? BubbleSerializer.fromMap(map['profile_bubble'] as Map)
             : null);
   }
 
@@ -2483,7 +2516,8 @@ class UserSerializer extends Codec<User, Map> {
       'email': model.email,
       'is_email_confirmed': model.isEmailConfirmed,
       'is_avatar_verified': model.isAvatarVerified,
-      'avatar': UploadSerializer.toMap(model.avatar)
+      'avatar': UploadSerializer.toMap(model.avatar),
+      'profile_bubble': BubbleSerializer.toMap(model.profileBubble)
     };
   }
 }
@@ -2499,7 +2533,8 @@ abstract class UserFields {
     hashedPassword,
     isEmailConfirmed,
     isAvatarVerified,
-    avatar
+    avatar,
+    profileBubble
   ];
 
   static const String id = 'id';
@@ -2521,6 +2556,8 @@ abstract class UserFields {
   static const String isAvatarVerified = 'is_avatar_verified';
 
   static const String avatar = 'avatar';
+
+  static const String profileBubble = 'profile_bubble';
 }
 
 const UploadSerializer uploadSerializer = UploadSerializer();

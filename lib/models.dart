@@ -16,7 +16,7 @@ class _Bubble extends Model {
   @notNull
   BubbleType type;
 
-  int ownerId;
+  int userId;
 
   @notNull
   String name;
@@ -112,6 +112,9 @@ class _User extends Model {
 
   @hasOne
   _Upload avatar;
+
+  @hasOne
+  _Bubble profileBubble;
 
   String get avatarUrl => '/api/users/$id/avatar';
 
