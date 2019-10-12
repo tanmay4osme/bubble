@@ -4,21 +4,29 @@
       <div class="tab" (click)="toggle()" [class.active]="isLogin">Log in</div>
       <div class="tab" (click)="toggle()" [class.active]="!isLogin">Sign up</div>
     </div>
-    <form>
+    <form (ngSubmit)="handleSubmit($event)">
       <div class="field">
-        <input *ngIf="!isLogin" autocomplete="email" placeholder="Email Address" type="email">
+        <input autocomplete="email" placeholder="Email Address" type="email" required [class.error]="isInvalid(email)"
+          [(ngModel)]="model.email" #email="ngForm" ngControl="email">
       </div>
       <div class="field">
-        <input autocomplete="username" placeholder="Username" type="text">
+        <input *ngIf="!isLogin" autocomplete="name" placeholder="Your Name" type="text" required
+          [class.error]="isInvalid(name)" [(ngModel)]="model.name" #name="ngForm" ngControl="name">
       </div>
       <div class="field">
-        <input [autocomplete]="passwordAutoComplete" placeholder="Password" type="password">
+        <input [autocomplete]="passwordAutoComplete" placeholder="Password" type="password" required
+          [class.error]="isInvalid(password)" [(ngModel)]="model.password" #password="ngForm" ngControl="password">
       </div>
       <div class="field">
-        <input *ngIf="!isLogin" autocomplete="new-password" placeholder="Confirm Password" type="password">
+        <input *ngIf="!isLogin" autocomplete="new-password" placeholder="Confirm Password" type="password" required
+          [class.error]="isInvalid(confirmPassword)" [(ngModel)]="model.confirmPassword" #confirmPassword="ngForm"
+          ngControl="confirmPassword">
       </div>
       <div class="field">
-        <button class="fluid primary">Submit</button>
+        <button class="fluid primary" [disabled]="isSending">
+          <span *ngIf="isSending">Sending...</span>
+          <span *ngIf="!isSending">Submit</span>
+        </button>
       </div>
     </form>
   </div>

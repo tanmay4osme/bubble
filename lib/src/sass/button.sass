@@ -11,11 +11,18 @@ button,.button
   padding: 0.5em 1em
   &.fluid
     width: 100%
+  &:disabled
+    background: darken($lightGray, 10%)
   &:focus
     background: darken($lightGray, 10%)
     outline: none
   &.primary
     background: $primary
     color: $white
-    &:focus
+    &:disabled,:focus
       background: darken($primary, 10%)
+  &:disabled
+    // background: lighten($gray, 20%)
+    // border: 1px solid rgba($gray, 0.2)
+    // color: darken($gray, 10%)
+    cursor: not-allowed
