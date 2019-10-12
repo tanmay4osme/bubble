@@ -1,14 +1,16 @@
 import 'package:angular/angular.dart';
+import 'package:angular_router/angular_router.dart';
 import 'package:bubble/src/ng/services/bubble_api.dart';
-import 'bubble_home.dart';
+import 'route_defs.dart';
 
 @Component(
     selector: 'bubble-app',
     templateUrl: 'bubble_app.html',
-    directives: [coreDirectives, BubbleHomeComponent],
-    providers: [BubbleApi])
+    directives: [coreDirectives, routerDirectives],
+    exports: [RouteDefs],
+    providers: [BubbleApiService])
 class BubbleAppComponent implements OnInit {
-  final BubbleApi api;
+  final BubbleApiService api;
 
   BubbleAppComponent(this.api);
 

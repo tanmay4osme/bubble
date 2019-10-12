@@ -1,0 +1,24 @@
+@import "./defs"
+
+.tabs
+  display: flex
+  flex-direction: row
+  margin-bottom: 1em
+  .tab
+    border-bottom: 2px solid transparent
+    color: $gray
+    cursor: pointer
+    flex: 1
+    font-size: 1.1em
+    font-weight: bolder
+    padding: 0.5em 0
+    text-align: center
+    text-transform: uppercase
+    transition: background-color $ease, border-bottom $ease, color $ease
+    &.active
+      border-bottom: 2px solid $primary
+      color: $primary
+    &:active
+      background-color: rgba($primary, 0.5)
+    &:hover
+      background-color: rgba($primary, 0.2)

@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:bubble/models.dart';
 
 @Injectable()
-class BubbleApi {
+class BubbleApiService {
   final http.Client httpClient = http.Client();
   User _user;
 

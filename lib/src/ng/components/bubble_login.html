@@ -1,0 +1,25 @@
+<div class="container">
+  <div class="padded card">
+    <div class="tabs">
+      <div class="tab" (click)="toggle()" [class.active]="isLogin">Log in</div>
+      <div class="tab" (click)="toggle()" [class.active]="!isLogin">Sign up</div>
+    </div>
+    <form>
+      <div class="field">
+        <input *ngIf="!isLogin" placeholder="Email Address" type="email">
+      </div>
+      <div class="field">
+        <input placeholder="Username" type="text">
+      </div>
+      <div class="field">
+        <input placeholder="Password" type="password">
+      </div>
+      <div class="field">
+        <input *ngIf="!isLogin" placeholder="Confirm Password" type="password">
+      </div>
+      <div class="field">
+        <button class="fluid primary">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
