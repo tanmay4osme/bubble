@@ -1904,11 +1904,7 @@ class BubbleThemeConfig implements _BubbleThemeConfig {
 
 @generatedSerializable
 class LoginBody extends _LoginBody {
-  LoginBody(
-      {@required this.name, @required this.email, @required this.password});
-
-  @override
-  String name;
+  LoginBody({@required this.email, @required this.password});
 
   @override
   String email;
@@ -1916,32 +1912,72 @@ class LoginBody extends _LoginBody {
   @override
   String password;
 
-  LoginBody copyWith({String name, String email, String password}) {
+  LoginBody copyWith({String email, String password}) {
     return LoginBody(
-        name: name ?? this.name,
-        email: email ?? this.email,
-        password: password ?? this.password);
+        email: email ?? this.email, password: password ?? this.password);
   }
 
   bool operator ==(other) {
     return other is _LoginBody &&
-        other.name == name &&
         other.email == email &&
         other.password == password;
   }
 
   @override
   int get hashCode {
-    return hashObjects([name, email, password]);
+    return hashObjects([email, password]);
   }
 
   @override
   String toString() {
-    return "LoginBody(name=$name, email=$email, password=$password)";
+    return "LoginBody(email=$email, password=$password)";
   }
 
   Map<String, dynamic> toJson() {
     return LoginBodySerializer.toMap(this);
+  }
+}
+
+@generatedSerializable
+class SignupBody extends _SignupBody {
+  SignupBody(
+      {@required this.email, @required this.password, @required this.name});
+
+  @override
+  String email;
+
+  @override
+  String password;
+
+  @override
+  String name;
+
+  SignupBody copyWith({String email, String password, String name}) {
+    return SignupBody(
+        email: email ?? this.email,
+        password: password ?? this.password,
+        name: name ?? this.name);
+  }
+
+  bool operator ==(other) {
+    return other is _SignupBody &&
+        other.email == email &&
+        other.password == password &&
+        other.name == name;
+  }
+
+  @override
+  int get hashCode {
+    return hashObjects([email, password, name]);
+  }
+
+  @override
+  String toString() {
+    return "SignupBody(email=$email, password=$password, name=$name)";
+  }
+
+  Map<String, dynamic> toJson() {
+    return SignupBodySerializer.toMap(this);
   }
 }
 
@@ -2675,10 +2711,6 @@ class LoginBodySerializer extends Codec<LoginBody, Map> {
   @override
   get decoder => const LoginBodyDecoder();
   static LoginBody fromMap(Map map) {
-    if (map['name'] == null) {
-      throw FormatException("Missing required field 'name' on LoginBody.");
-    }
-
     if (map['email'] == null) {
       throw FormatException("Missing required field 'email' on LoginBody.");
     }
@@ -2688,19 +2720,13 @@ class LoginBodySerializer extends Codec<LoginBody, Map> {
     }
 
     return LoginBody(
-        name: map['name'] as String,
-        email: map['email'] as String,
-        password: map['password'] as String);
+        email: map['email'] as String, password: map['password'] as String);
   }
 
   static Map<String, dynamic> toMap(_LoginBody model) {
     if (model == null) {
       return null;
     }
-    if (model.name == null) {
-      throw FormatException("Missing required field 'name' on LoginBody.");
-    }
-
     if (model.email == null) {
       throw FormatException("Missing required field 'email' on LoginBody.");
     }
@@ -2709,20 +2735,90 @@ class LoginBodySerializer extends Codec<LoginBody, Map> {
       throw FormatException("Missing required field 'password' on LoginBody.");
     }
 
-    return {
-      'name': model.name,
-      'email': model.email,
-      'password': model.password
-    };
+    return {'email': model.email, 'password': model.password};
   }
 }
 
 abstract class LoginBodyFields {
-  static const List<String> allFields = <String>[name, email, password];
-
-  static const String name = 'name';
+  static const List<String> allFields = <String>[email, password];
 
   static const String email = 'email';
 
   static const String password = 'password';
+}
+
+const SignupBodySerializer signupBodySerializer = SignupBodySerializer();
+
+class SignupBodyEncoder extends Converter<SignupBody, Map> {
+  const SignupBodyEncoder();
+
+  @override
+  Map convert(SignupBody model) => SignupBodySerializer.toMap(model);
+}
+
+class SignupBodyDecoder extends Converter<Map, SignupBody> {
+  const SignupBodyDecoder();
+
+  @override
+  SignupBody convert(Map map) => SignupBodySerializer.fromMap(map);
+}
+
+class SignupBodySerializer extends Codec<SignupBody, Map> {
+  const SignupBodySerializer();
+
+  @override
+  get encoder => const SignupBodyEncoder();
+  @override
+  get decoder => const SignupBodyDecoder();
+  static SignupBody fromMap(Map map) {
+    if (map['email'] == null) {
+      throw FormatException("Missing required field 'email' on SignupBody.");
+    }
+
+    if (map['password'] == null) {
+      throw FormatException("Missing required field 'password' on SignupBody.");
+    }
+
+    if (map['name'] == null) {
+      throw FormatException("Missing required field 'name' on SignupBody.");
+    }
+
+    return SignupBody(
+        email: map['email'] as String,
+        password: map['password'] as String,
+        name: map['name'] as String);
+  }
+
+  static Map<String, dynamic> toMap(_SignupBody model) {
+    if (model == null) {
+      return null;
+    }
+    if (model.email == null) {
+      throw FormatException("Missing required field 'email' on SignupBody.");
+    }
+
+    if (model.password == null) {
+      throw FormatException("Missing required field 'password' on SignupBody.");
+    }
+
+    if (model.name == null) {
+      throw FormatException("Missing required field 'name' on SignupBody.");
+    }
+
+    return {
+      'email': model.email,
+      'password': model.password,
+      'name': model.name
+    };
+  }
+}
+
+abstract class SignupBodyFields {
+  static const List<String> allFields = <String>[email, password, name];
+
+  static const String email = 'email';
+
+  static const String password = 'password';
+
+  static const String name = 'name';
 }

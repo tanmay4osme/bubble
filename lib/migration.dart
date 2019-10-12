@@ -19,5 +19,6 @@ Future<PostgresMigrationRunner> createMigrationRunner(
     PostMigration(),
     SubscriptionMigration(),
     PostShareMigration(),
+    UploadMigration(),
   ]);
 }

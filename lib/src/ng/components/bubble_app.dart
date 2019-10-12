@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:angular/angular.dart';
 import 'package:angular_router/angular_router.dart';
 import 'package:bubble/src/ng/services/bubble_api.dart';
@@ -16,6 +18,11 @@ class BubbleAppComponent implements OnInit {
 
   @override
   void ngOnInit() async {
-    await api.initialize();
+    try {
+      await api.initialize();
+    } catch (e) {
+      // Do nothing...
+      window.console.info(e);
+    }
   }
 }

@@ -113,6 +113,8 @@ class _User extends Model {
   @hasOne
   _Upload avatar;
 
+  String get avatarUrl => '/api/users/$id/avatar';
+
   bool get canPost {
     return isEmailConfirmed && isAvatarVerified;
   }
@@ -140,8 +142,14 @@ class _BubbleThemeConfig {}
 @serializable
 class _LoginBody {
   @notNull
-  String name, email, password;
+  String email, password;
   String _lowerEmail;
 
   String get lowerEmail => _lowerEmail ??= email.toLowerCase();
+}
+
+@serializable
+class _SignupBody extends _LoginBody {
+  @notNull
+  String name;
 }

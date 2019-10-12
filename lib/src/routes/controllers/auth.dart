@@ -8,12 +8,14 @@ import 'package:dbcrypt/dbcrypt.dart';
 
 @Expose('/api/auth')
 class AuthController extends Controller {
+  final QueryExecutor executor;
+  final DBCrypt dbCrypt;
   AngelAuth<User> _auth;
   Validator _signupValidator;
 
-  AuthController() {
+  AuthController(this.executor, this.dbCrypt) {
     _signupValidator = Validator({
-      'username*': isNonEmptyString,
+      'name*': isNonEmptyString,
       'email*': isEmail,
       'password*': [isNonEmptyString, isConfirmed]
     });
@@ -28,18 +30,44 @@ class AuthController extends Controller {
   Future<void> configureServer(Angel app) async {
     await super.configureServer(app);
     _auth = AngelAuth();
+    _auth.serializer = (u) => u.id;
+    _auth.deserializer = (idObj) {
+      var id = int.parse(idObj.toString());
+      var query = UserQuery()..where.id.equals(id);
+      return query.getOne(executor);
+    };
+    _auth.strategies['local'] = LocalAuthStrategy(
+      (email, password) async {
+        // TODO: Brute-force protection.
+        // Find the user with that email.
+        var query = UserQuery()..where.email.equals(email.toLowerCase());
+        var user = await query.getOne(executor);
+        if (user != null) {
+          var hashed = dbCrypt.hashpw(password, user.salt);
+          if (hashed != user.hashedPassword) {
+            throw AngelHttpException.notAuthenticated(
+                message: 'Invalid password.');
+          }
+        }
+        return user;
+      },
+      usernameField: 'email',
+    );
+    await app.configure(_auth.configureServer);
   }
 
   @Expose('/login', method: 'POST')
   RequestHandler login() => _auth.authenticate('local');
 
+  @Expose('/resume', method: 'POST')
+  RequestHandler resume() => _auth.reviveJwt;
+
   @Expose('/signup', method: 'POST')
-  Future<Map<String, dynamic>> signup(
-      RequestContext req, DBCrypt dbCrypt, QueryExecutor executor) async {
+  Future<Map<String, dynamic>> signup(RequestContext req) async {
     // TODO: Brute-force protection.
     // TODO: Send confirmation emails.
     // Parse the request body.
-    var body = await req.decodeBody(loginBodySerializer);
+    var body = await req.decodeBody(signupBodySerializer);
     // See if a user exists with that email.
     var existingQuery = UserQuery()..where.email.equals(body.lowerEmail);
     var existing = await existingQuery.getOne(executor);

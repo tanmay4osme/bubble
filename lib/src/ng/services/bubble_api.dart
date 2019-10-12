@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:html';
 import 'package:angel_http_exception/angel_http_exception.dart';
 import 'package:angel_serialize/angel_serialize.dart';
 import 'package:angular/angular.dart';
@@ -16,7 +17,21 @@ class BubbleApiService {
   User get user => _user;
 
   Future<void> initialize() async {
-    // TODO: Resume from offline, etc.
+    // Resume from offline, etc.
+    String token;
+    if (window.navigator.credentials == null) {
+      token = window.localStorage['token'];
+    } else {
+      var credentials = await window.navigator.credentials
+          .get({'password': true}) as PasswordCredential;
+      token = credentials?.password;
+    }
+
+    if (token != null) {
+      var response =
+          await httpClient.post('/api/auth/resume', body: {'token': token});
+      await _handleAuth(response);
+    }
   }
 
   http.Response verifyResponse(http.Response rs) {
@@ -30,6 +45,17 @@ class BubbleApiService {
     var auth = json.decode(response.body) as Map<String, dynamic>;
     _token = auth['token'] as String;
     _user = userSerializer.decode(auth['data'] as Map);
+
+    if (window.navigator.credentials == null) {
+      window.localStorage['token'] = _token;
+    } else {
+      await window.navigator.credentials.store(PasswordCredential({
+        'id': _user.email,
+        'name': _user.name,
+        'password': _token,
+        'iconURL': Uri.base.replace(path: _user.avatarUrl),
+      }));
+    }
   }
 
   Future<void> login(Map<String, dynamic> data) async {
