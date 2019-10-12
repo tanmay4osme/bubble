@@ -1,4 +1,6 @@
 include: package:pedantic/analysis_options.yaml
 analyzer:
+  plugins:
+    - angular
   strong-mode:
     implicit-casts: false
