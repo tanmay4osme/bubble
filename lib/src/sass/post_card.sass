@@ -1,0 +1,31 @@
+@import "./defs"
+
+:host
+  background: $white
+  border: 1px $gray
+  box-shadow: 0 0 2px rgba($black, 0.2)
+  color: $gray
+  display: flex
+  flex-direction: column
+
+.meta
+  align-items: center
+  display: flex
+  flex-direction: row
+  padding: 1em
+  .content
+    padding: 0 1em
+    .author
+      color: $primary
+      font-weight: bold
+
+.image-row
+  display: flex
+  flex-direction: row
+  flex: 1
+  .image
+    flex: 1
+    // object-fit: contain
+    img
+      height: auto
+      max-width: 100%
