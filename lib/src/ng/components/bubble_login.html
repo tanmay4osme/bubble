@@ -6,21 +6,20 @@
     </div>
     <form (ngSubmit)="handleSubmit($event)">
       <div class="field">
-        <input autocomplete="email" placeholder="Email Address" type="email" required [class.error]="isInvalid(email)"
-          [(ngModel)]="model.email" #email="ngForm" ngControl="email">
+        <input *ngIf="!isLogin" autocomplete="name" placeholder="Your Name" type="text" required
+          [class.error]="isInvalid(name)" #name="ngForm" ngControl="name">
       </div>
       <div class="field">
-        <input *ngIf="!isLogin" autocomplete="name" placeholder="Your Name" type="text" required
-          [class.error]="isInvalid(name)" [(ngModel)]="model.name" #name="ngForm" ngControl="name">
+        <input autocomplete="email" placeholder="Email Address" type="email" required [class.error]="isInvalid(email)"
+          #email="ngForm" ngControl="email">
       </div>
       <div class="field">
         <input [autocomplete]="passwordAutoComplete" placeholder="Password" type="password" required
-          [class.error]="isInvalid(password)" [(ngModel)]="model.password" #password="ngForm" ngControl="password">
+          [class.error]="isInvalid(password)" #password="ngForm" ngControl="password">
       </div>
       <div class="field">
         <input *ngIf="!isLogin" autocomplete="new-password" placeholder="Confirm Password" type="password" required
-          [class.error]="isInvalid(confirmPassword)" [(ngModel)]="model.confirmPassword" #confirmPassword="ngForm"
-          ngControl="confirmPassword">
+          [class.error]="isInvalid(password_confirmed)" #password_confirmed="ngForm" ngControl="password_confirmed">
       </div>
       <div class="field">
         <button class="fluid primary" [disabled]="isSending">

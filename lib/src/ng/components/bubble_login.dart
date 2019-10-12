@@ -7,10 +7,6 @@ import 'package:angular_router/angular_router.dart';
 import 'package:bubble/src/ng/services/bubble_api.dart';
 import 'package:bubble/src/ng/services/title.dart';
 
-class Model {
-  String email, name, password, confirmPassword;
-}
-
 @Component(
     selector: 'bubble-login',
     templateUrl: 'bubble_login.html',
@@ -20,8 +16,6 @@ class BubbleLoginComponent implements OnActivate {
   final TitleService _titleService;
   final Router _router;
   bool isLogin = true, isSending = false;
-
-  var model = Model();
 
   BubbleLoginComponent(this._api, this._titleService, this._router);
 

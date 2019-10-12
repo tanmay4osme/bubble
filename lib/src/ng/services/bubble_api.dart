@@ -26,6 +26,12 @@ class BubbleApiService {
     return rs;
   }
 
+  Future<void> _handleAuth(http.Response response) async {
+    var auth = json.decode(response.body) as Map<String, dynamic>;
+    _token = auth['token'] as String;
+    _user = userSerializer.decode(auth['data'] as Map);
+  }
+
   Future<void> login(Map<String, dynamic> data) async {
     // TODO: Save auth information
     // TODO: Use credentials API if available
@@ -33,10 +39,13 @@ class BubbleApiService {
     var response = await httpClient
         .post('/api/auth/login', body: data)
         .then(verifyResponse);
-    var auth = json.decode(response.body) as Map<String, dynamic>;
-    _token = auth['token'] as String;
-    _user = userSerializer.decode(auth['data'] as Map);
+    await _handleAuth(response);
   }
 
-  Future<void> signup(Map<String, dynamic> data) async {}
+  Future<void> signup(Map<String, dynamic> data) async {
+    var response = await httpClient
+        .post('/api/auth/signup', body: data)
+        .then(verifyResponse);
+    await _handleAuth(response);
+  }
 }

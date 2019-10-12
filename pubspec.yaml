@@ -8,19 +8,21 @@ dependencies:
   angel_auth: ^2.0.0
   angel_client: ^2.0.0
   angel_configuration: ^2.0.0
-  angel_framework: ^2.0.0
+  angel_framework: ^2.0.5-beta
   angel_jael: ^2.0.0
   angel_migration: ^2.0.0-alpha
   angel_orm: ^2.1.0-beta
   angel_orm_postgres: ^1.1.0-beta
   angel_serialize: ^2.0.0
   angel_production: ^1.0.0
+  angel_proxy: ^2.0.0
   angel_static: ^2.0.0
   angel_validate: ^2.0.0
   angular: ^5.0.0
   angular_forms: ^2.0.0
   angular_router: ^2.0.0-alpha
   dbcrypt: ^1.0.0
+  http: ^0.12.0
   pretty_logging: ^1.0.0
 dev_dependencies:
   angel_hot: ^2.0.0

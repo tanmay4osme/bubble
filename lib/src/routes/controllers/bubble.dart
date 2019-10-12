@@ -9,16 +9,16 @@ class BubbleController extends Controller {
 
   BubbleController(this.executor);
 
-  static Future<bool> _parsePost(
-      RequestContext req, ResponseContext res) async {
-    // TODO: Actual validation
-    await req.parseBody();
-    var post = postSerializer.decode(req.bodyAsMap);
-    req.container.registerSingleton(post);
-    return true;
-  }
+  // static Future<bool> _parsePost(
+  //     RequestContext req, ResponseContext res) async {
+  //   // TODO: Actual validation
+  //   await req.parseBody();
+  //   var post = postSerializer.decode(req.bodyAsMap);
+  //   req.container.registerSingleton(post);
+  //   return true;
+  // }
 
-  @Expose('/int:bubbleId/share', method: 'POST', middleware: [_parsePost])
+  @Expose('/int:bubbleId/share', method: 'POST')
   Future<PostShare> sharePost(int bubbleId, User user, Post postData) async {
     // Find the user's subscription, if any.
     var subscriptionQuery = SubscriptionQuery();

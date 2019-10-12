@@ -1,6 +1,7 @@
 import 'package:angel_migration/angel_migration.dart';
 import 'package:angel_serialize/angel_serialize.dart';
 import 'package:angel_orm/angel_orm.dart';
+import 'package:http_parser/http_parser.dart';
 part 'models.g.dart';
 
 enum BubbleType {
@@ -95,7 +96,10 @@ class _Subscription {
 @serializable
 @orm
 class _User extends Model {
-  String username;
+  String name;
+
+  @Column(indexType: IndexType.unique)
+  String email;
 
   @Exclude(canDeserialize: true)
   String salt, hashedPassword;
@@ -106,9 +110,23 @@ class _User extends Model {
   @DefaultsTo(false)
   bool isAvatarVerified;
 
+  @hasOne
+  _Upload avatar;
+
   bool get canPost {
     return isEmailConfirmed && isAvatarVerified;
   }
+}
+
+@serializable
+@orm
+class _Upload extends Model {
+  @Exclude(canDeserialize: true)
+  String path;
+  String mimeType;
+  int userId, sizeInBytes;
+
+  MediaType get mediaType => MediaType.parse(mimeType);
 }
 
 // Config
@@ -118,3 +136,12 @@ class _BubbleConfig {}
 
 @serializable
 class _BubbleThemeConfig {}
+
+@serializable
+class _LoginBody {
+  @notNull
+  String name, email, password;
+  String _lowerEmail;
+
+  String get lowerEmail => _lowerEmail ??= email.toLowerCase();
+}

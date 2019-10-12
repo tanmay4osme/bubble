@@ -3,6 +3,7 @@ import 'package:bubble/bubble.dart';
 import 'package:angel_container/mirrors.dart';
 import 'package:angel_framework/angel_framework.dart';
 import 'package:angel_hot/angel_hot.dart';
+import 'package:glob/glob.dart';
 import 'package:logging/logging.dart';
 import 'package:pretty_logging/pretty_logging.dart';
 
@@ -16,7 +17,10 @@ main() async {
     return app;
   }, [
     Directory('config'),
-    Directory('lib'),
+    Directory('lib/src/config'),
+    Directory('lib/src/routes'),
+    Directory('lib/src/services'),
+    Glob('lib/*.dart'),
   ]);
 
   var server = await hot.startServer('127.0.0.1', 3000);
