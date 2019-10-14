@@ -18,19 +18,33 @@ class BubbleApiService {
 
   Future<void> initialize() async {
     // Resume from offline, etc.
-    String token;
+    http.Response response;
     if (window.navigator.credentials == null) {
-      token = window.localStorage['token'];
+      var token = window.localStorage['token'];
+      if (token != null) {
+        response =
+            await httpClient.post('/api/auth/resume', body: {'token': token});
+      }
     } else {
       var credentials = await window.navigator.credentials
           .get({'password': true}) as PasswordCredential;
-      token = credentials?.password;
+      if (credentials != null) {
+        response = await httpClient.post('/api/auth/login',
+            body: {'email': credentials.id, 'password': credentials.password});
+      }
     }
 
-    if (token != null) {
-      var response =
-          await httpClient.post('/api/auth/resume', body: {'token': token});
-      await _handleAuth(response);
+    if (response != null) {
+      try {
+        verifyResponse(response);
+        await _handleAuth(response, null);
+      } on AngelHttpException {
+        if (window.navigator.credentials == null) {
+          window.localStorage.remove('token');
+        } else {
+          await window.navigator.credentials.preventSilentAccess();
+        }
+      }
     }
   }
 
@@ -41,18 +55,18 @@ class BubbleApiService {
     return rs;
   }
 
-  Future<void> _handleAuth(http.Response response) async {
+  Future<void> _handleAuth(http.Response response, String password) async {
     var auth = json.decode(response.body) as Map<String, dynamic>;
     _token = auth['token'] as String;
     _user = userSerializer.decode(auth['data'] as Map);
 
     if (window.navigator.credentials == null) {
       window.localStorage['token'] = _token;
-    } else {
+    } else if (password != null) {
       await window.navigator.credentials.store(PasswordCredential({
         'id': _user.email,
         'name': _user.name,
-        'password': _token,
+        'password': password,
         'iconURL': Uri.base.replace(path: _user.avatarUrl),
       }));
     }
@@ -65,13 +79,13 @@ class BubbleApiService {
     var response = await httpClient
         .post('/api/auth/login', body: data)
         .then(verifyResponse);
-    await _handleAuth(response);
+    await _handleAuth(response, data['password'] as String);
   }
 
   Future<void> signup(Map<String, dynamic> data) async {
     var response = await httpClient
         .post('/api/auth/signup', body: data)
         .then(verifyResponse);
-    await _handleAuth(response);
+    await _handleAuth(response, data['password'] as String);
   }
 }

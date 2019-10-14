@@ -10,7 +10,8 @@ import 'package:bubble/src/ng/services/title.dart';
 @Component(
     selector: 'bubble-login',
     templateUrl: 'bubble_login.html',
-    directives: [coreDirectives, formDirectives])
+    directives: [coreDirectives, formDirectives],
+    styles: [':host { flex: 1; }'])
 class BubbleLoginComponent implements OnActivate {
   final BubbleApiService _api;
   final TitleService _titleService;

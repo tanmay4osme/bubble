@@ -22,7 +22,7 @@ class BubbleMigration extends Migration {
 
   @override
   down(Schema schema) {
-    schema.drop('bubbles', cascade: true);
+    schema.drop('bubbles');
   }
 }
 
@@ -152,34 +152,12 @@ class BubbleQuery extends Query<Bubble, BubbleQueryWhere> {
     trampoline ??= Set();
     trampoline.add(tableName);
     _where = BubbleQueryWhere(this);
-    leftJoin(_shares = PostShareQuery(trampoline: trampoline, parent: this),
-        'id', 'bubble_id',
-        additionalFields: const ['bubble_id', 'shared_by', 'post_id'],
-        trampoline: trampoline);
-    leftJoin(
-        _aggregationRules =
-            BubbleAggregationRuleQuery(trampoline: trampoline, parent: this),
-        'id',
-        'bubble_id',
-        additionalFields: const [
-          'id',
-          'created_at',
-          'updated_at',
-          'bubble_id',
-          'target_bubble_id',
-          'target_user_id'
-        ],
-        trampoline: trampoline);
   }
 
   @override
   final BubbleQueryValues values = BubbleQueryValues();
 
   BubbleQueryWhere _where;
-
-  PostShareQuery _shares;
-
-  BubbleAggregationRuleQuery _aggregationRules;
 
   @override
   get casts {
@@ -224,98 +202,12 @@ class BubbleQuery extends Query<Bubble, BubbleQueryWhere> {
         userId: (row[4] as int),
         name: (row[5] as String),
         description: (row[6] as String));
-    if (row.length > 7) {
-      model = model.copyWith(
-          shares: [PostShareQuery.parseRow(row.skip(7).take(3).toList())]
-              .where((x) => x != null)
-              .toList());
-    }
-    if (row.length > 10) {
-      model = model.copyWith(
-          aggregationRules: [
-        BubbleAggregationRuleQuery.parseRow(row.skip(10).take(6).toList())
-      ].where((x) => x != null).toList());
-    }
     return model;
   }
 
   @override
   deserialize(List row) {
     return parseRow(row);
-  }
-
-  PostShareQuery get shares {
-    return _shares;
-  }
-
-  BubbleAggregationRuleQuery get aggregationRules {
-    return _aggregationRules;
-  }
-
-  @override
-  get(QueryExecutor executor) {
-    return super.get(executor).then((result) {
-      return result.fold<List<Bubble>>([], (out, model) {
-        var idx = out.indexWhere((m) => m.id == model.id);
-
-        if (idx == -1) {
-          return out..add(model);
-        } else {
-          var l = out[idx];
-          return out
-            ..[idx] = l.copyWith(
-                shares: List<_PostShare>.from(l.shares ?? [])
-                  ..addAll(model.shares ?? []),
-                aggregationRules:
-                    List<_BubbleAggregationRule>.from(l.aggregationRules ?? [])
-                      ..addAll(model.aggregationRules ?? []));
-        }
-      });
-    });
-  }
-
-  @override
-  update(QueryExecutor executor) {
-    return super.update(executor).then((result) {
-      return result.fold<List<Bubble>>([], (out, model) {
-        var idx = out.indexWhere((m) => m.id == model.id);
-
-        if (idx == -1) {
-          return out..add(model);
-        } else {
-          var l = out[idx];
-          return out
-            ..[idx] = l.copyWith(
-                shares: List<_PostShare>.from(l.shares ?? [])
-                  ..addAll(model.shares ?? []),
-                aggregationRules:
-                    List<_BubbleAggregationRule>.from(l.aggregationRules ?? [])
-                      ..addAll(model.aggregationRules ?? []));
-        }
-      });
-    });
-  }
-
-  @override
-  delete(QueryExecutor executor) {
-    return super.delete(executor).then((result) {
-      return result.fold<List<Bubble>>([], (out, model) {
-        var idx = out.indexWhere((m) => m.id == model.id);
-
-        if (idx == -1) {
-          return out..add(model);
-        } else {
-          var l = out[idx];
-          return out
-            ..[idx] = l.copyWith(
-                shares: List<_PostShare>.from(l.shares ?? [])
-                  ..addAll(model.shares ?? []),
-                aggregationRules:
-                    List<_BubbleAggregationRule>.from(l.aggregationRules ?? [])
-                      ..addAll(model.aggregationRules ?? []));
-        }
-      });
-    });
   }
 }
 
@@ -993,6 +885,18 @@ class UserQuery extends Query<User, UserQueryWhere> {
           'size_in_bytes'
         ],
         trampoline: trampoline);
+    leftJoin(_coverPhoto = UploadQuery(trampoline: trampoline, parent: this),
+        'id', 'user_id',
+        additionalFields: const [
+          'id',
+          'created_at',
+          'updated_at',
+          'path',
+          'mime_type',
+          'user_id',
+          'size_in_bytes'
+        ],
+        trampoline: trampoline);
     leftJoin(_profileBubble = BubbleQuery(trampoline: trampoline, parent: this),
         'id', 'user_id',
         additionalFields: const [
@@ -1013,6 +917,8 @@ class UserQuery extends Query<User, UserQueryWhere> {
   UserQueryWhere _where;
 
   UploadQuery _avatar;
+
+  UploadQuery _coverPhoto;
 
   BubbleQuery _profileBubble;
 
@@ -1069,7 +975,11 @@ class UserQuery extends Query<User, UserQueryWhere> {
     }
     if (row.length > 16) {
       model = model.copyWith(
-          profileBubble: BubbleQuery.parseRow(row.skip(16).take(7).toList()));
+          coverPhoto: UploadQuery.parseRow(row.skip(16).take(7).toList()));
+    }
+    if (row.length > 23) {
+      model = model.copyWith(
+          profileBubble: BubbleQuery.parseRow(row.skip(23).take(7).toList()));
     }
     return model;
   }
@@ -1081,6 +991,10 @@ class UserQuery extends Query<User, UserQueryWhere> {
 
   UploadQuery get avatar {
     return _avatar;
+  }
+
+  UploadQuery get coverPhoto {
+    return _coverPhoto;
   }
 
   BubbleQuery get profileBubble {
@@ -1357,11 +1271,7 @@ class Bubble extends _Bubble {
       @required this.type,
       this.userId,
       @required this.name,
-      @required this.description,
-      List<_PostShare> shares,
-      List<_BubbleAggregationRule> aggregationRules})
-      : this.shares = List.unmodifiable(shares ?? []),
-        this.aggregationRules = List.unmodifiable(aggregationRules ?? []);
+      @required this.description});
 
   /// A unique identifier corresponding to this item.
   @override
@@ -1387,12 +1297,6 @@ class Bubble extends _Bubble {
   @override
   String description;
 
-  @override
-  List<_PostShare> shares;
-
-  @override
-  List<_BubbleAggregationRule> aggregationRules;
-
   Bubble copyWith(
       {String id,
       DateTime createdAt,
@@ -1400,9 +1304,7 @@ class Bubble extends _Bubble {
       BubbleType type,
       int userId,
       String name,
-      String description,
-      List<_PostShare> shares,
-      List<_BubbleAggregationRule> aggregationRules}) {
+      String description}) {
     return Bubble(
         id: id ?? this.id,
         createdAt: createdAt ?? this.createdAt,
@@ -1410,9 +1312,7 @@ class Bubble extends _Bubble {
         type: type ?? this.type,
         userId: userId ?? this.userId,
         name: name ?? this.name,
-        description: description ?? this.description,
-        shares: shares ?? this.shares,
-        aggregationRules: aggregationRules ?? this.aggregationRules);
+        description: description ?? this.description);
   }
 
   bool operator ==(other) {
@@ -1423,32 +1323,18 @@ class Bubble extends _Bubble {
         other.type == type &&
         other.userId == userId &&
         other.name == name &&
-        other.description == description &&
-        ListEquality<_PostShare>(DefaultEquality<_PostShare>())
-            .equals(other.shares, shares) &&
-        ListEquality<_BubbleAggregationRule>(
-                DefaultEquality<_BubbleAggregationRule>())
-            .equals(other.aggregationRules, aggregationRules);
+        other.description == description;
   }
 
   @override
   int get hashCode {
-    return hashObjects([
-      id,
-      createdAt,
-      updatedAt,
-      type,
-      userId,
-      name,
-      description,
-      shares,
-      aggregationRules
-    ]);
+    return hashObjects(
+        [id, createdAt, updatedAt, type, userId, name, description]);
   }
 
   @override
   String toString() {
-    return "Bubble(id=$id, createdAt=$createdAt, updatedAt=$updatedAt, type=$type, userId=$userId, name=$name, description=$description, shares=$shares, aggregationRules=$aggregationRules)";
+    return "Bubble(id=$id, createdAt=$createdAt, updatedAt=$updatedAt, type=$type, userId=$userId, name=$name, description=$description)";
   }
 
   Map<String, dynamic> toJson() {
@@ -1692,6 +1578,7 @@ class User extends _User {
       this.isEmailConfirmed = false,
       this.isAvatarVerified = false,
       this.avatar,
+      this.coverPhoto,
       this.profileBubble});
 
   /// A unique identifier corresponding to this item.
@@ -1728,6 +1615,9 @@ class User extends _User {
   _Upload avatar;
 
   @override
+  _Upload coverPhoto;
+
+  @override
   _Bubble profileBubble;
 
   User copyWith(
@@ -1741,6 +1631,7 @@ class User extends _User {
       bool isEmailConfirmed,
       bool isAvatarVerified,
       _Upload avatar,
+      _Upload coverPhoto,
       _Bubble profileBubble}) {
     return User(
         id: id ?? this.id,
@@ -1753,6 +1644,7 @@ class User extends _User {
         isEmailConfirmed: isEmailConfirmed ?? this.isEmailConfirmed,
         isAvatarVerified: isAvatarVerified ?? this.isAvatarVerified,
         avatar: avatar ?? this.avatar,
+        coverPhoto: coverPhoto ?? this.coverPhoto,
         profileBubble: profileBubble ?? this.profileBubble);
   }
 
@@ -1768,6 +1660,7 @@ class User extends _User {
         other.isEmailConfirmed == isEmailConfirmed &&
         other.isAvatarVerified == isAvatarVerified &&
         other.avatar == avatar &&
+        other.coverPhoto == coverPhoto &&
         other.profileBubble == profileBubble;
   }
 
@@ -1784,13 +1677,14 @@ class User extends _User {
       isEmailConfirmed,
       isAvatarVerified,
       avatar,
+      coverPhoto,
       profileBubble
     ]);
   }
 
   @override
   String toString() {
-    return "User(id=$id, createdAt=$createdAt, updatedAt=$updatedAt, name=$name, email=$email, salt=$salt, hashedPassword=$hashedPassword, isEmailConfirmed=$isEmailConfirmed, isAvatarVerified=$isAvatarVerified, avatar=$avatar, profileBubble=$profileBubble)";
+    return "User(id=$id, createdAt=$createdAt, updatedAt=$updatedAt, name=$name, email=$email, salt=$salt, hashedPassword=$hashedPassword, isEmailConfirmed=$isEmailConfirmed, isAvatarVerified=$isAvatarVerified, avatar=$avatar, coverPhoto=$coverPhoto, profileBubble=$profileBubble)";
   }
 
   Map<String, dynamic> toJson() {
@@ -2070,16 +1964,7 @@ class BubbleSerializer extends Codec<Bubble, Map> {
                 : null),
         userId: map['user_id'] as int,
         name: map['name'] as String,
-        description: map['description'] as String,
-        shares: map['shares'] is Iterable
-            ? List.unmodifiable(((map['shares'] as Iterable).whereType<Map>())
-                .map(PostShareSerializer.fromMap))
-            : null,
-        aggregationRules: map['aggregation_rules'] is Iterable
-            ? List.unmodifiable(
-                ((map['aggregation_rules'] as Iterable).whereType<Map>())
-                    .map(BubbleAggregationRuleSerializer.fromMap))
-            : null);
+        description: map['description'] as String);
   }
 
   static Map<String, dynamic> toMap(_Bubble model) {
@@ -2105,12 +1990,7 @@ class BubbleSerializer extends Codec<Bubble, Map> {
       'type': model.type == null ? null : BubbleType.values.indexOf(model.type),
       'user_id': model.userId,
       'name': model.name,
-      'description': model.description,
-      'shares':
-          model.shares?.map((m) => PostShareSerializer.toMap(m))?.toList(),
-      'aggregation_rules': model.aggregationRules
-          ?.map((m) => BubbleAggregationRuleSerializer.toMap(m))
-          ?.toList()
+      'description': model.description
     };
   }
 }
@@ -2123,9 +2003,7 @@ abstract class BubbleFields {
     type,
     userId,
     name,
-    description,
-    shares,
-    aggregationRules
+    description
   ];
 
   static const String id = 'id';
@@ -2141,10 +2019,6 @@ abstract class BubbleFields {
   static const String name = 'name';
 
   static const String description = 'description';
-
-  static const String shares = 'shares';
-
-  static const String aggregationRules = 'aggregation_rules';
 }
 
 const BubbleAggregationRuleSerializer bubbleAggregationRuleSerializer =
@@ -2499,6 +2373,9 @@ class UserSerializer extends Codec<User, Map> {
         avatar: map['avatar'] != null
             ? UploadSerializer.fromMap(map['avatar'] as Map)
             : null,
+        coverPhoto: map['cover_photo'] != null
+            ? UploadSerializer.fromMap(map['cover_photo'] as Map)
+            : null,
         profileBubble: map['profile_bubble'] != null
             ? BubbleSerializer.fromMap(map['profile_bubble'] as Map)
             : null);
@@ -2517,6 +2394,7 @@ class UserSerializer extends Codec<User, Map> {
       'is_email_confirmed': model.isEmailConfirmed,
       'is_avatar_verified': model.isAvatarVerified,
       'avatar': UploadSerializer.toMap(model.avatar),
+      'cover_photo': UploadSerializer.toMap(model.coverPhoto),
       'profile_bubble': BubbleSerializer.toMap(model.profileBubble)
     };
   }
@@ -2534,6 +2412,7 @@ abstract class UserFields {
     isEmailConfirmed,
     isAvatarVerified,
     avatar,
+    coverPhoto,
     profileBubble
   ];
 
@@ -2556,6 +2435,8 @@ abstract class UserFields {
   static const String isAvatarVerified = 'is_avatar_verified';
 
   static const String avatar = 'avatar';
+
+  static const String coverPhoto = 'cover_photo';
 
   static const String profileBubble = 'profile_bubble';
 }

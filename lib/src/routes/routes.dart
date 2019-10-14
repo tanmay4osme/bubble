@@ -11,6 +11,13 @@ AngelConfigurer configureServer(FileSystem fileSystem) {
     // Typically, you want to mount controllers first, after any global middleware.
     await app.configure(controllers.configureServer);
 
+
+    if (!app.environment.isProduction) {
+      app.get('/routes', (req, res) {
+        app.dumpTree(callback: res.writeln);
+      });
+    }
+
     if (!app.environment.isProduction) {
       var proxy = Proxy('http://localhost:8080', recoverFromDead: false);
       app

@@ -1,0 +1,47 @@
+@import "./defs"
+
+$shadow: 0 0 8px rgba($black, 0.2)
+
+:host
+  flex: 1
+
+.cover-photo
+  background-color: $primary
+  background-size: cover
+  height: 12em
+  position: relative
+  span
+    text-shadow: $shadow
+  .avatar
+    border: 2px solid $white
+    box-shadow: $shadow
+  .overlay
+    position: absolute
+    top: 0
+    left: 0
+    height: 100%
+    width: 100%
+    // background: rgba($black, 0.2)
+    background: linear-gradient(to bottom, transparent, $black)
+    opacity: 1
+  .title-body
+    flex: 1
+  .title
+    display: flex
+    flex-direction: row
+    align-items: center
+    position: absolute
+    color: $white
+    font-size: 2em
+    font-weight: bold
+    height: 100%
+    left: 0
+    top: 0
+    // left: 0.5em
+    // bottom: 0.5em
+    width: 100%
+    text-align: center
+  @media screen and (max-width: $break-small)
+    height: 10em
+    .title
+      font-size: 1.5em

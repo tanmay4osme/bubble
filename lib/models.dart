@@ -24,11 +24,8 @@ class _Bubble extends Model {
   @notNull
   String description;
 
-  @hasMany
-  List<_PostShare> shares;
-
-  @hasMany
-  List<_BubbleAggregationRule> aggregationRules;
+  // @hasMany
+  // List<_BubbleAggregationRule> aggregationRules;
 }
 
 @serializable
@@ -111,7 +108,7 @@ class _User extends Model {
   bool isAvatarVerified;
 
   @hasOne
-  _Upload avatar;
+  _Upload avatar, coverPhoto;
 
   @hasOne
   _Bubble profileBubble;

@@ -1,13 +1,15 @@
 <header>
   <nav>
-    Bubble
+    <div class="title item">Bubble</div>
     <span style="flex: 1"></span>
-    <a *ngIf="isInitialized && !api.isLoggedIn" routerLink="/login">Log in / Sign Up</a>
-    <div *ngIf="isInitialized && api.isLoggedIn" class="user item">
-      {{ api.user.name }}
-    </div>
+    <a *ngIf="isInitialized && !api.isLoggedIn" routerLink="/login" class="item">Log in / Sign Up</a>
+    <a *ngIf="isInitialized && api.isLoggedIn" class="user item" routerLink="/profile">
+      <img src="https://pbs.twimg.com/profile_images/1183067956760268800/agIETNEE_200x200.jpg" alt="" class="avatar">
+      <span>{{ api.user.name }}</span>
+    </a>
   </nav>
 </header>
 <main *ngIf="isInitialized">
+  <bubble-sidebar></bubble-sidebar>
   <router-outlet [routes]="RouteDefs.all"></router-outlet>
 </main>

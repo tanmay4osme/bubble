@@ -9,11 +9,13 @@ import 'package:pretty_logging/pretty_logging.dart';
 
 main() async {
   // Watch the config/ and web/ directories for changes, and hot-reload the server.
+  hierarchicalLoggingEnabled = true;
   var hot = HotReloader(() async {
-    var app = Angel(reflector: MirrorsReflector());
+    var logger = Logger.detached('bubble')
+      ..level = Level.ALL
+      ..onRecord.listen(prettyLog);
+    var app = Angel(logger: logger, reflector: MirrorsReflector());
     await app.configure(configureServer);
-    hierarchicalLoggingEnabled = true;
-    app.logger = Logger.detached('api')..onRecord.listen(prettyLog);
     return app;
   }, [
     Directory('config'),
@@ -25,5 +27,5 @@ main() async {
 
   var server = await hot.startServer('127.0.0.1', 3000);
   print(
-      'api server listening at http://${server.address.address}:${server.port}');
+      'bubble server listening at http://${server.address.address}:${server.port}');
 }
